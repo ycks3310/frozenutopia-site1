@@ -1,4 +1,4 @@
-てきすとぼっくすimport type { NextPage, GetServerSidePropsContext } from 'next'
+import type { NextPage, GetServerSidePropsContext } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useState } from 'react'
