@@ -1,4 +1,4 @@
-interface Ability {
+type Ability = {
   name: string
   credit: number | null
   amount: number
@@ -6,13 +6,13 @@ interface Ability {
   bindKey: string
 }
 
-export interface Character {
+export type ValorantCharacter = {
   name: string
   roll: string
   ability: Ability[]
 }
 
-export const CharacterList: Character[] = [
+export const CharacterList: ValorantCharacter[] = [
   {
     name: 'ジェット',
     roll: 'デュエリスト',
