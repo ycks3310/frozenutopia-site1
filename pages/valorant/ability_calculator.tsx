@@ -1,14 +1,38 @@
 import type { NextPage, GetServerSidePropsContext } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import { useState } from 'react'
-import { ValorantCharacter } from '../../src/constants/CharacterList'
+import { useState, useRef, useEffect } from 'react'
+import { ValorantCharacter } from '../../src/constants/valorant/CharacterList'
 import styles from '../../styles/Home.module.css'
 
 type CharacterList = { data: ValorantCharacter[]}
 
 const AbilityCalculator: NextPage<CharacterList> = (characterList) => {
   const [text, setText] = useState('')
+
+  const characterListRef = useRef(null)
+  const [selectedCharacter, setSelectedCharacter] = useState()
+
+  const setCharacterList = () => {
+    console.log(characterList)
+    let i = 0
+    characterList.data.map((character) => {
+      const option = document.createElement('option')
+      option.value = `${i}`
+      option.text = character.name
+      characterListRef.current.appendChild(option)
+      i += 1
+    })
+  }
+
+  const selectCharacter = (e) => {
+    console.log(`選択されたvalue: ${e.target.value}`)
+    setSelectedCharacter(e.target.value)
+  }
+
+  useEffect(() => {
+    setCharacterList()
+  }, [])
 
   return (
     <div className={styles.container}>
@@ -19,16 +43,19 @@ const AbilityCalculator: NextPage<CharacterList> = (characterList) => {
       </Head>
 
       <main className={styles.main}>
+        <h1 className={styles.title}>VALORANT 購入フェーズ計算機</h1>
+        現在のクレジット残高 (最大9,000)
         <input
           value={text}
           onChange={(event) => setText(event.target.value)}
         ></input>
-        <p>{text}</p>
-        <ol>
-          {characterList.data.map((character) => (
-            <li>{character.name}</li>
-          ))}
-        </ol>
+        <p>入力した値: {text}</p>
+
+        <p>キャラクター選択</p>
+        <label>
+          <select ref={characterListRef} value={selectedCharacter} onChange={selectCharacter}></select>
+        </label>
+        <p>選択したキャラのvalue: {selectedCharacter}</p>
       </main>
     </div>
   )
