@@ -4,35 +4,95 @@ import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { ValorantCharacter } from '../../src/constants/valorant/CharacterList'
 import styles from '../../styles/Home.module.css'
+import Select from 'react-select'
+import { Weapons } from '../../src/constants/valorant/WeaponList'
 
-type CharacterList = { data: ValorantCharacter[]}
+type ApiProps = {
+  character: ValorantCharacter[]
+  weapon: Weapons[]
+}
 
-const AbilityCalculator: NextPage<CharacterList> = (characterList) => {
+type OptionType = {
+  label: string,
+  value: string
+}
+
+const AbilityCalculator: NextPage<ApiProps> = (props) => {
   const [text, setText] = useState('')
 
-  const characterListRef = useRef(null)
-  const [selectedCharacter, setSelectedCharacter] = useState()
+  // const characterListRef = useRef(null)
+  // const [selectedCharacter, setSelectedCharacter] = useState()
 
-  const setCharacterList = () => {
-    console.log(characterList)
-    let i = 0
-    characterList.data.map((character) => {
-      const option = document.createElement('option')
-      option.value = `${i}`
-      option.text = character.name
-      characterListRef.current.appendChild(option)
+  const characterOptions: OptionType[] = []
+  const [selectedCharacter, setSelectedCharacter] = useState<OptionType[]>([])
+
+  let i = 0
+  props.character.map((character) => {
+    // const option = document.createElement('option')
+    // option.value = `${i}`
+    // option.text = character.name
+    const option = {
+      value: `${i}`, label: character.name
+    }
+    characterOptions.push(option)
+    i += 1
+  })
+
+  const onChangeCharacter = (input: any) => {
+    setSelectedCharacter(input)
+
+  }
+  const checkCharacterList = () => {
+    console.log(selectedCharacter)
+  }
+
+
+  const weaponOptions: OptionType[] = []
+  const [selectedWeapons, setSelectedWeapon] = useState<OptionType[]>([])
+
+  i = 0
+  props.weapon.map((weaponCategory) => {
+    // const option = document.createElement('option')
+    // option.value = `${i}`
+    // option.text = character.name
+    weaponCategory.weapon.map((weapon) => {
+      const option = {
+        value: `${i}`, label: weapon.name
+      }
+      weaponOptions.push(option)
       i += 1
     })
+  })
+
+  const onChangeWeapons = (input: any) => {
+    setSelectedWeapon(input)
+
+  }
+  const checkWeapons = () => {
+    console.log(selectedWeapons)
   }
 
-  const selectCharacter = (e) => {
-    console.log(`選択されたvalue: ${e.target.value}`)
-    setSelectedCharacter(e.target.value)
-  }
+  // const setCharacterList = () => {
+  //   console.log(characterList)
+  //   let i = 0
+  //   characterList.data.map((character) => {
+  //     const option = document.createElement('option')
+  //     option.value = `${i}`
+  //     option.text = character.name
+  //     characterListRef.current.appendChild(option)
+  //     characterOptions.push(option)
+  //     i += 1
+  //   })
+  // }
 
-  useEffect(() => {
-    setCharacterList()
-  }, [])
+  // const selectCharacter = (e) => {
+  //   console.log(`選択されたvalue: ${e.target.value}`)
+  //   setSelectedCharacter(e.target.value)
+  // }
+
+  // useEffect(() => {
+  //   setCharacterList()
+  // }, [])
 
   return (
     <div className={styles.container}>
@@ -53,10 +113,28 @@ const AbilityCalculator: NextPage<CharacterList> = (characterList) => {
 
         <p>キャラクター選択</p>
         <label>
-          <select ref={characterListRef} value={selectedCharacter} onChange={selectCharacter}></select>
+          {/* <select ref={characterListRef} value={selectedCharacter} onChange={selectCharacter}></select> */}
+          <Select
+            options={characterOptions}
+            // isMulti
+            onChange={onChangeCharacter}
+            placeholder='キャラクターを選択'
+          />
         </label>
-        <p>選択したキャラのvalue: {selectedCharacter}</p>
-      </main>
+        <button onClick={checkCharacterList}>console.log()</button>
+
+        <p>武器の選択</p>
+        <label>
+          {/* <select ref={characterListRef} value={selectedCharacter} onChange={selectCharacter}></select> */}
+          <Select
+            options={weaponOptions}
+            isMulti
+            onChange={onChangeWeapons}
+            placeholder='武器を選択'
+          />
+        </label>
+        <button onClick={checkWeapons}>console.log()</button>
+        </main>
     </div>
   )
 }
@@ -69,7 +147,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   } else {
     protocol = 'https'
   }
-  const res: ValorantCharacter[] = await fetch(`${protocol}://${host}/api/valorant/character/get`)
+  const resChara: ValorantCharacter[] = await fetch(`${protocol}://${host}/api/valorant/character/get`)
     .then(res => {
       return res.json()
     })
@@ -77,8 +155,22 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       return []
     })
   // console.log(res)
-  const r: CharacterList = {data: res}
-  return { props: r }
+  
+  const resWeapon: Weapons[] = await fetch(`${protocol}://${host}/api/valorant/weapon/get`)
+    .then(res => {
+      return res.json()
+    })
+    .catch(err => {
+      return []
+    })
+  // console.log(res)
+
+  const r: ApiProps = {
+    character: resChara,
+    weapon: resWeapon
+  }
+
+  return { props: r}
 }
 
 export default AbilityCalculator
