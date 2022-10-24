@@ -13,12 +13,12 @@ type Weapon = {
     | 'シールド'
 }
 
-type WeaponList = {
+export type Weapons = {
   category: 'サイドアーム' | 'メイン' | 'シールド'
   weapon: Weapon[]
 }
 
-export const WEAPON_LIST: WeaponList[] = [
+export const WEAPON_LIST: Weapons[] = [
   {
     category: 'サイドアーム',
     weapon: [
@@ -53,7 +53,7 @@ export const WEAPON_LIST: WeaponList[] = [
     category: 'メイン',
     weapon: [
       {
-        name: 'ステシンガー',
+        name: 'スティンガー',
         credit: 950,
         sub_category: 'サブマシンガン'
       },
