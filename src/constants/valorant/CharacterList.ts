@@ -1,18 +1,20 @@
+// キャラクターのtype定義と一覧
+
 type Ability = {
   name: string
   credit: number | null
   amount: number
   defaultAmount: number
-  bindKey: string
+  bindKey: 'Q' | 'C' | 'E' | 'X' | 'Q/E'
 }
 
 export type ValorantCharacter = {
   name: string
-  roll: string
+  roll: 'デュエリスト' | 'コントローラー' | 'イニシエーター' | 'センチネル'
   ability: Ability[]
 }
 
-export const CharacterList: ValorantCharacter[] = [
+export const CHARACTER_LIST: ValorantCharacter[] = [
   {
     name: 'ジェット',
     roll: 'デュエリスト',
