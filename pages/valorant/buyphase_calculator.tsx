@@ -6,6 +6,7 @@ import { ValorantCharacter } from '../../src/constants/valorant/CharacterList'
 import styles from '../../styles/Home.module.css'
 import Select from 'react-select'
 import { Weapons } from '../../src/constants/valorant/WeaponList'
+import ReactDOM from 'react-dom/client'
 
 type ApiProps = {
   character: ValorantCharacter[]
@@ -14,7 +15,14 @@ type ApiProps = {
 
 type OptionType = {
   label: string,
-  value: string
+  value: number
+}
+
+type WeaponOptionType = {
+  label: string,
+  value: number,
+  credit: number,
+  sub_category: string
 }
 
 const AbilityCalculator: NextPage<ApiProps> = (props) => {
@@ -23,6 +31,8 @@ const AbilityCalculator: NextPage<ApiProps> = (props) => {
   // const characterListRef = useRef(null)
   // const [selectedCharacter, setSelectedCharacter] = useState()
 
+
+  // キャラクター一覧
   const characterOptions: OptionType[] = []
   const [selectedCharacter, setSelectedCharacter] = useState<OptionType[]>([])
 
@@ -32,7 +42,8 @@ const AbilityCalculator: NextPage<ApiProps> = (props) => {
     // option.value = `${i}`
     // option.text = character.name
     const option = {
-      value: `${i}`, label: character.name
+      value: i,
+      label: character.name
     }
     characterOptions.push(option)
     i += 1
@@ -46,53 +57,78 @@ const AbilityCalculator: NextPage<ApiProps> = (props) => {
     console.log(selectedCharacter)
   }
 
+  let sidearmDom: ReactDOM.Root
+  let mainWeaponDom: ReactDOM.Root
+  // DOMの定義
+  if (typeof document !== 'undefined') {
+    sidearmDom = ReactDOM.createRoot(
+      document.getElementById('sidearmWeaponCreditShow') as HTMLElement
+    )
+    mainWeaponDom = ReactDOM.createRoot(
+      document.getElementById('mainWeaponCreditShow') as HTMLElement
+    )
+  }
 
-  const weaponOptions: OptionType[] = []
-  const [selectedWeapons, setSelectedWeapon] = useState<OptionType[]>([])
+  // サイドアーム
+  const sidearmWeaponOptions: WeaponOptionType[] = []
+  const [selectedSidearmWeapons, setSelectedSidearmWeapon] = useState<WeaponOptionType>({} as WeaponOptionType)
+
+  const onChangeSidearmWeapons = (input: any) => {
+    setSelectedSidearmWeapon(input)
+  }
+  const checkSidearmWeapons = () => {
+    console.log(selectedSidearmWeapons)
+    sidearmDom.render(
+      <p>
+        {selectedSidearmWeapons.credit} 円
+      </p>
+    )
+  }
+  // メインウェポン
+  const mainWeaponOptions: WeaponOptionType[] = []
+  const [selectedMainWeapons, setSelectedMainWeapon] = useState<WeaponOptionType>({} as WeaponOptionType)
+
+  const onChangeMainWeapons = (input: any) => {
+    setSelectedMainWeapon(input)
+  }
+  const checkMainWeapons = () => {
+    console.log(selectedSidearmWeapons)
+    mainWeaponDom.render(
+      <p>
+        {selectedMainWeapons.credit} 円
+      </p>
+    )
+  }
+
+  // 
 
   i = 0
   props.weapon.map((weaponCategory) => {
-    // const option = document.createElement('option')
-    // option.value = `${i}`
-    // option.text = character.name
-    weaponCategory.weapon.map((weapon) => {
-      const option = {
-        value: `${i}`, label: weapon.name
-      }
-      weaponOptions.push(option)
-      i += 1
-    })
+    if (weaponCategory.category === 'サイドアーム') {
+      weaponCategory.weapon.map((weapon) => {
+        const option: WeaponOptionType = {
+          value: i,
+          label: weapon.name,
+          credit: weapon.credit,
+          sub_category: weapon.sub_category
+        }
+        sidearmWeaponOptions.push(option)
+        i += 1
+      })
+    }
+    if (weaponCategory.category === 'メイン') {
+      weaponCategory.weapon.map((weapon) => {
+        const option: WeaponOptionType = {
+          value: i,
+          label: weapon.name,
+          credit: weapon.credit,
+          sub_category: weapon.sub_category
+        }
+        mainWeaponOptions.push(option)
+        i += 1
+      })
+    }
   })
-
-  const onChangeWeapons = (input: any) => {
-    setSelectedWeapon(input)
-
-  }
-  const checkWeapons = () => {
-    console.log(selectedWeapons)
-  }
-
-  // const setCharacterList = () => {
-  //   console.log(characterList)
-  //   let i = 0
-  //   characterList.data.map((character) => {
-  //     const option = document.createElement('option')
-  //     option.value = `${i}`
-  //     option.text = character.name
-  //     characterListRef.current.appendChild(option)
-  //     characterOptions.push(option)
-  //     i += 1
-  //   })
-  // }
-
-  // const selectCharacter = (e) => {
-  //   console.log(`選択されたvalue: ${e.target.value}`)
-  //   setSelectedCharacter(e.target.value)
-  // }
-
-  // useEffect(() => {
-  //   setCharacterList()
-  // }, [])
 
   return (
     <div className={styles.container}>
@@ -111,6 +147,39 @@ const AbilityCalculator: NextPage<ApiProps> = (props) => {
         ></input>
         <p>入力した値: {text}</p>
 
+        <p>武器の選択</p>
+        <label>
+          {/* <select ref={characterListRef} value={selectedCharacter} onChange={selectCharacter}></select> */}
+          <Select
+            options={sidearmWeaponOptions}
+            // isMulti
+            onChange={onChangeSidearmWeapons}
+            placeholder='武器(サイドアーム)を選択'
+          />
+        </label>
+        <button onClick={checkSidearmWeapons}>値段の確認</button>
+        <div id='sidearmWeaponCreditShow'>
+          <p>
+            0 円
+          </p>
+        </div>
+
+        <label>
+          {/* <select ref={characterListRef} value={selectedCharacter} onChange={selectCharacter}></select> */}
+          <Select
+            options={mainWeaponOptions}
+            // isMulti
+            onChange={onChangeMainWeapons}
+            placeholder='武器(メイン)を選択'
+          />
+        </label>
+        <button onClick={checkMainWeapons}>値段の確認</button>
+        <div id='mainWeaponCreditShow'>
+          <p>
+            0 円
+          </p>
+        </div>
+
         <p>キャラクター選択</p>
         <label>
           {/* <select ref={characterListRef} value={selectedCharacter} onChange={selectCharacter}></select> */}
@@ -122,18 +191,6 @@ const AbilityCalculator: NextPage<ApiProps> = (props) => {
           />
         </label>
         <button onClick={checkCharacterList}>console.log()</button>
-
-        <p>武器の選択</p>
-        <label>
-          {/* <select ref={characterListRef} value={selectedCharacter} onChange={selectCharacter}></select> */}
-          <Select
-            options={weaponOptions}
-            isMulti
-            onChange={onChangeWeapons}
-            placeholder='武器を選択'
-          />
-        </label>
-        <button onClick={checkWeapons}>console.log()</button>
         </main>
     </div>
   )
